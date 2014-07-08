@@ -1,4 +1,4 @@
-## Concat with source maps
+## Concat with source maps [![NPM version][npm-image]][npm-url] [![build status][travis-image]][travis-url] [![Test coverage][coveralls-image]][coveralls-url]
 
 NPM module for concatenating text files and generating source maps.
 
@@ -35,3 +35,10 @@ The resulting concatenated file content.
 
 #### concat.sourceMap
 The resulting source map of the concatenated files.
+
+[npm-image]: https://img.shields.io/npm/v/concat-with-sourcemaps.svg?style=flat
+[npm-url]: https://npmjs.org/package/concat-with-sourcemaps
+[travis-image]: https://img.shields.io/travis/floridoo/concat-with-sourcemaps.svg?style=flat
+[travis-url]: https://travis-ci.org/floridoo/concat-with-sourcemaps
+[coveralls-image]: https://img.shields.io/coveralls/floridoo/concat-with-sourcemaps.svg?style=flat
+[coveralls-url]: https://coveralls.io/r/floridoo/concat-with-sourcemaps?branch=master

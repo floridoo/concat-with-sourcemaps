@@ -10,7 +10,8 @@ function testCase(description, options) {
       concat.add(input.fileName || 'test'+(i+1), input.content, input.sourceMap);
     });
     t.equal(concat.content, options.output.content, 'should produce the right output');
-    t.equal(concat.sourceMap, options.output.sourceMap, 'should produce the right source map');
+    if (options.output.sourceMap)
+      t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
     t.end();
   });
 }

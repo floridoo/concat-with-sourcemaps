@@ -212,3 +212,22 @@ testCase('should pass on source content', {
     sourceMap: '{"version":3,"file":"out.js","sources":["test11","test12","test13","test2","test3"],"names":[],"mappings":"AAAA;ACAA;ACAA;ACAA;ACAA","sourcesContent":["AAA","BBB","CCC",null,null]}'
   }
 });
+
+testCase('should pass on source content when mappings is empty', {
+  separator: '\n',
+  sourceMapping: true,
+  outFile: 'out.js',
+  input: [
+    {
+      content: 'AAA',
+      sourceMap: '{"version":3,"file":"intermediate.js","sources":["test11"], "sourcesContent": ["AAA"], "names":[],"mappings":""}',
+      fileName: 'intermediate.js'
+    },
+    { content: 'EEE' },
+    { content: 'FFF' }
+  ],
+  output: {
+    content: 'AAA\nEEE\nFFF',
+    sourceMap: '{"version":3,"file":"out.js","sources":["intermediate.js","test2","test3"],"names":[],"mappings":"AAAA;ACAA;ACAA","sourcesContent":["AAA",null,null]}'
+  }
+});

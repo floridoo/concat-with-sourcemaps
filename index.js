@@ -75,6 +75,8 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
           source: filePath
         });
       }
+      if (sourceMap && sourceMap.sourcesContent)
+        this._sourceMap.setSourceContent(filePath, sourceMap.sourcesContent[0]);
     }
     if (lines > 1)
       this.columnOffset = 0;

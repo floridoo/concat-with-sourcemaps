@@ -12,6 +12,8 @@ function testCase(description, options) {
     t.equal(concat.content, options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
       t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
+    else
+      t.equal(concat.sourceMap, undefined, 'should not produce a source map');
     t.end();
   });
 }
@@ -230,5 +232,24 @@ testCase('should pass on source content when mappings is empty', {
   output: {
     content: 'AAA\nEEE\nFFF',
     sourceMap: '{"version":3,"file":"out.js","sources":["intermediate.js","test2","test3"],"names":[],"mappings":"AAAA;ACAA;ACAA","sourcesContent":["AAA",null,null]}'
+  }
+});
+
+testCase('should ignore invalid mappings', {
+  separator: '\n',
+  sourceMapping: true,
+  outFile: 'out.js',
+  input: [
+    {
+      content: 'AAA\nBBB\nCCC',
+      sourceMap: '{"version":3,"file":"intermediate.js","sources":["test11","test12","test13"], "sourcesContent": ["AAA", "BBB", "CCC"], "names":[],"mappings":"A;ACAA;ACAA"}',
+      fileName: 'intermediate.js'
+    },
+    { content: 'EEE' },
+    { content: 'FFF' }
+  ],
+  output: {
+    content: 'AAA\nBBB\nCCC\nEEE\nFFF',
+    sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":";AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
   }
 });

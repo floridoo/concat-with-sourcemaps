@@ -43,18 +43,20 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
       var upstreamSM = new SourceMapConsumer(sourceMap);
       var _this = this;
       upstreamSM.eachMapping(function(mapping) {
-        _this._sourceMap.addMapping({
-          generated: {
-            line: _this.lineOffset + mapping.generatedLine,
-            column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
-          },
-          original: {
-            line: mapping.originalLine,
-            column: mapping.originalColumn
-          },
-          source: mapping.source,
-          name: mapping.name
-        });
+        if (mapping.source) {
+          _this._sourceMap.addMapping({
+            generated: {
+              line: _this.lineOffset + mapping.generatedLine,
+              column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
+            },
+            original: {
+              line: mapping.originalLine,
+              column: mapping.originalColumn
+            },
+            source: mapping.source,
+            name: mapping.name
+          });
+        }
       });
       if (upstreamSM.sourcesContent) {
         upstreamSM.sourcesContent.forEach(function(sourceContent, i) {

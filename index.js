@@ -2,6 +2,10 @@
 var SourceMapGenerator = require('source-map').SourceMapGenerator;
 var SourceMapConsumer = require('source-map').SourceMapConsumer;
 
+function unixStylePath(filePath) {
+  return filePath.replace(/\\/g, '/');
+}
+
 function Concat(generateSourceMap, fileName, separator) {
   this.separator = separator;
   this.lineOffset = 0;
@@ -14,7 +18,7 @@ function Concat(generateSourceMap, fileName, separator) {
   }
 
   if (this.sourceMapping) {
-    this._sourceMap = new SourceMapGenerator({file: fileName});
+    this._sourceMap = new SourceMapGenerator({file: unixStylePath(fileName)});
     this.separatorLineOffset = 0;
     this.separatorColumnOffset = 0;
     for (var i = 0; i < this.separator.length; i++) {
@@ -28,6 +32,7 @@ function Concat(generateSourceMap, fileName, separator) {
 }
 
 Concat.prototype.add = function(filePath, content, sourceMap) {
+  filePath = unixStylePath(filePath);
   if (this.content !== '') {
     this.content += this.separator;
   }

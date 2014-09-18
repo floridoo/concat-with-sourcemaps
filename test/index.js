@@ -253,3 +253,27 @@ testCase('should ignore invalid mappings', {
     sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":";AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
   }
 });
+
+testCase('should output unix style paths on Windows', {
+  separator: '\n',
+  sourceMapping: true,
+  outFile: 'test\\test\\out.js',
+  input: [
+    {
+      content: 'AAA',
+      fileName: 'test\\test1'
+    },
+    {
+      content: 'BBB',
+      fileName: 'test\\test2'
+    },
+    {
+      content: 'CCC',
+      fileName: 'test\\test3'
+    }
+  ],
+  output: {
+    content: 'AAA\nBBB\nCCC',
+    sourceMap: '{"version":3,"file":"test/test/out.js","sources":["test/test1","test/test2","test/test3"],"names":[],"mappings":"AAAA;ACAA;ACAA"}'
+  }
+});

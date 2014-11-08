@@ -295,3 +295,22 @@ testCase('should keep source in sources with empty mappings', {
     sourceMap: '{"version":3,"file":"out.js","sources":["testXXX","test2","test3"],"names":[],"mappings":"AAAA;ACAA;ACAA"}'
   }
 });
+
+testCase('should not crash with an input source map with no mappings', {
+  separator: '\n',
+  sourceMapping: true,
+  outFile: 'out.js',
+  input: [
+    {
+      content: 'AAA\nBBB\nCCC',
+      sourceMap: '{"version":3,"file":"intermediate.js","sources":[],"names":[],"mappings":""}',
+      fileName: 'intermediate.js'
+    },
+    { content: 'EEE' },
+    { content: 'FFF' }
+  ],
+  output: {
+    content: 'AAA\nBBB\nCCC\nEEE\nFFF',
+    sourceMap: '{"version":3,"file":"out.js","sources":["intermediate.js", "test2", "test3"],"names":[],"mappings":"AAAA;AACA;AACA;ACFA;ACAA"}'
+  }
+});

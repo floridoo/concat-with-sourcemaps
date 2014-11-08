@@ -69,7 +69,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
         });
       }
     } else {
-      if (sourceMap && sourceMap.sources)
+      if (sourceMap && sourceMap.sources && sourceMap.sources.length > 0)
         filePath = sourceMap.sources[0];
       for (var i = 1; i <= lines; i++) {
         this._sourceMap.addMapping({

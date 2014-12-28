@@ -5,11 +5,23 @@ var Concat = require('..');
 
 function testCase(description, options) {
   test(description, function(t) {
+    // content as Buffer
     var concat = new Concat(options.sourceMapping, options.outFile, options.separator);
+    options.input.forEach(function(input, i) {
+      concat.add(input.fileName || 'test'+(i+1), new Buffer(input.content), input.sourceMap);
+    });
+    t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
+    if (options.output.sourceMap)
+      t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
+    else
+      t.equal(concat.sourceMap, undefined, 'should not produce a source map');
+
+    // content as string
+    concat = new Concat(options.sourceMapping, options.outFile, options.separator);
     options.input.forEach(function(input, i) {
       concat.add(input.fileName || 'test'+(i+1), input.content, input.sourceMap);
     });
-    t.equal(concat.content, options.output.content, 'should produce the right output');
+    t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
       t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
     else
@@ -84,7 +96,7 @@ testCase('should concatenate without separator specified', {
     { content: 'CCC' }
   ],
   output: {
-    content: 'AAA\nBBB\nCCC'
+    content: 'AAABBBCCC'
   }
 });
 

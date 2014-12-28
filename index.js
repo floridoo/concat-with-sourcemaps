@@ -7,23 +7,25 @@ function unixStylePath(filePath) {
 }
 
 function Concat(generateSourceMap, fileName, separator) {
-  this.separator = separator;
   this.lineOffset = 0;
   this.columnOffset = 0;
   this.sourceMapping = generateSourceMap;
-  this.content = '';
+  this.content = new Buffer(0);
 
   if (separator === undefined) {
-    this.separator = '\n';
+    this.separator = new Buffer(0);
+  } else {
+    this.separator = new Buffer(separator);
   }
 
   if (this.sourceMapping) {
     this._sourceMap = new SourceMapGenerator({file: unixStylePath(fileName)});
     this.separatorLineOffset = 0;
     this.separatorColumnOffset = 0;
-    for (var i = 0; i < this.separator.length; i++) {
+    var separatorString = this.separator.toString();
+    for (var i = 0; i < separatorString.length; i++) {
       this.separatorColumnOffset++;
-      if (this.separator[i] === '\n') {
+      if (separatorString[i] === '\n') {
         this.separatorLineOffset++;
         this.separatorColumnOffset = 0;
       }
@@ -33,13 +35,19 @@ function Concat(generateSourceMap, fileName, separator) {
 
 Concat.prototype.add = function(filePath, content, sourceMap) {
   filePath = unixStylePath(filePath);
-  if (this.content !== '') {
-    this.content += this.separator;
+
+  if (!Buffer.isBuffer(content)) {
+    content = new Buffer(content);
   }
-  this.content += content;
+
+  if (this.content.length !== 0) {
+    this.content = Buffer.concat([this.content, this.separator]);
+  }
+  this.content = Buffer.concat([this.content, content]);
 
   if (this.sourceMapping) {
-    var lines = content.split('\n').length;
+    var contentString = content.toString();
+    var lines = contentString.split('\n').length;
 
     if (Object.prototype.toString.call(sourceMap) === '[object String]')
       sourceMap = JSON.parse(sourceMap);
@@ -90,7 +98,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
     if (lines > 1)
       this.columnOffset = 0;
     if (this.separatorLineOffset === 0)
-      this.columnOffset += content.length - Math.max(0, content.lastIndexOf('\n')+1);
+      this.columnOffset += contentString.length - Math.max(0, contentString.lastIndexOf('\n')+1);
     this.columnOffset += this.separatorColumnOffset;
     this.lineOffset += lines - 1 + this.separatorLineOffset;
   }

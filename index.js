@@ -40,10 +40,22 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
     content = new Buffer(content);
   }
 
-  if (this.content.length !== 0) {
-    this.content = Buffer.concat([this.content, this.separator]);
+  var chunks = [this.content];
+  var len = this.content.length;
+
+  if (len !== 0 && this.separator.length !== 0) {
+    chunks.push(this.separator);
+    len += this.separator.length;
   }
-  this.content = Buffer.concat([this.content, content]);
+
+  if (content.length !== 0) {
+    chunks.push(content);
+    len += content.length;
+  }
+
+  if (chunks.length > 1) {
+    this.content = Buffer.concat(chunks, len);
+  }
 
   if (this.sourceMapping) {
     var contentString = content.toString();

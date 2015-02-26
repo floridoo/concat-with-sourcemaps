@@ -36,9 +36,9 @@ The resulting concatenated file content (Buffer).
 #### concat.sourceMap
 The resulting source map of the concatenated files (string).
 
-[npm-image]: https://img.shields.io/npm/v/concat-with-sourcemaps.svg?style=flat
-[npm-url]: https://npmjs.org/package/concat-with-sourcemaps
-[travis-image]: https://img.shields.io/travis/floridoo/concat-with-sourcemaps.svg?style=flat
+[npm-image]: https://img.shields.io/npm/v/concat-with-sourcemaps.svg
+[npm-url]: https://www.npmjs.com/package/concat-with-sourcemaps
+[travis-image]: https://img.shields.io/travis/floridoo/concat-with-sourcemaps.svg
 [travis-url]: https://travis-ci.org/floridoo/concat-with-sourcemaps
-[coveralls-image]: https://img.shields.io/coveralls/floridoo/concat-with-sourcemaps.svg?style=flat
+[coveralls-image]: https://img.shields.io/coveralls/floridoo/concat-with-sourcemaps.svg
 [coveralls-url]: https://coveralls.io/r/floridoo/concat-with-sourcemaps?branch=master

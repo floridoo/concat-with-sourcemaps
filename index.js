@@ -10,7 +10,7 @@ function Concat(generateSourceMap, fileName, separator) {
   this.lineOffset = 0;
   this.columnOffset = 0;
   this.sourceMapping = generateSourceMap;
-  this.content = new Buffer(0);
+  this.contentParts = [];
 
   if (separator === undefined) {
     this.separator = new Buffer(0);
@@ -40,10 +40,10 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
     content = new Buffer(content);
   }
 
-  if (this.content.length !== 0) {
-    this.content = Buffer.concat([this.content, this.separator]);
+  if (this.contentParts.length !== 0) {
+    this.contentParts.push(this.separator);
   }
-  this.content = Buffer.concat([this.content, content]);
+  this.contentParts.push(content);
 
   if (this.sourceMapping) {
     var contentString = content.toString();
@@ -103,6 +103,12 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
     this.lineOffset += lines - 1 + this.separatorLineOffset;
   }
 };
+
+Object.defineProperty(Concat.prototype, 'content', {
+  get: function content() {
+    return Buffer.concat(this.contentParts);
+  }
+});
 
 Object.defineProperty(Concat.prototype, 'sourceMap', {
   get: function sourceMap() {

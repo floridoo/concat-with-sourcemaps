@@ -6,7 +6,7 @@ function unixStylePath(filePath) {
   return filePath.replace(/\\/g, '/');
 }
 
-function Concat(generateSourceMap, fileName, separator) {
+function Concat(generateSourceMap, fileName, separator, header, footer) {
   this.lineOffset = 0;
   this.columnOffset = 0;
   this.sourceMapping = generateSourceMap;
@@ -18,6 +18,19 @@ function Concat(generateSourceMap, fileName, separator) {
     this.separator = new Buffer(separator);
   }
 
+  if (header === undefined) {
+    this.header = new Buffer(0);
+  } else {
+    this.header = new Buffer(header);
+  }
+
+  if (footer === undefined) {
+    this.footer = new Buffer(0);
+  } else {
+    this.footer = new Buffer(footer);
+  }
+
+  this.contentParts.push(this.header);
   if (this.sourceMapping) {
     this._sourceMap = new SourceMapGenerator({file: unixStylePath(fileName)});
     this.separatorLineOffset = 0;
@@ -30,6 +43,14 @@ function Concat(generateSourceMap, fileName, separator) {
         this.separatorColumnOffset = 0;
       }
     }
+    var headerString = this.header.toString();
+    for (i = 0; i < headerString.length; i++) {
+      this.columnOffset++;
+      if (headerString[i] === '\n') {
+        this.lineOffset++;
+        this.columnOffset = 0;
+      }
+    }
   }
 }
 
@@ -40,7 +61,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
     content = new Buffer(content);
   }
 
-  if (this.contentParts.length !== 0) {
+  if (this.contentParts.length > 1) {
     this.contentParts.push(this.separator);
   }
   this.contentParts.push(content);
@@ -106,7 +127,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
 
 Object.defineProperty(Concat.prototype, 'content', {
   get: function content() {
-    return Buffer.concat(this.contentParts);
+    return Buffer.concat(this.contentParts.concat(this.footer));
   }
 });
 

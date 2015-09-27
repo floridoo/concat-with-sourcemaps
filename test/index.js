@@ -8,7 +8,7 @@ function testCase(description, options) {
     // content as Buffer
     var concat = new Concat(options.sourceMapping, options.outFile, options.separator);
     options.input.forEach(function(input, i) {
-      concat.add(input.fileName || 'test'+(i+1), new Buffer(input.content), input.sourceMap);
+      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), new Buffer(input.content), input.sourceMap);
     });
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
@@ -19,7 +19,7 @@ function testCase(description, options) {
     // content as string
     concat = new Concat(options.sourceMapping, options.outFile, options.separator);
     options.input.forEach(function(input, i) {
-      concat.add(input.fileName || 'test'+(i+1), input.content, input.sourceMap);
+      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), input.content, input.sourceMap);
     });
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
@@ -324,5 +324,23 @@ testCase('should not crash with an input source map with no mappings', {
   output: {
     content: 'AAA\nBBB\nCCC\nEEE\nFFF',
     sourceMap: '{"version":3,"file":"out.js","sources":["intermediate.js", "test2", "test3"],"names":[],"mappings":"AAAA;AACA;AACA;ACFA;ACAA"}'
+  }
+});
+
+testCase('should allow content without filename and produce no mapping for it', {
+  separator: '\n',
+  sourceMapping: true,
+  outFile: 'out.js',
+  input: [
+    { content: '// Header', fileName: null },
+    { content: 'AA\nA' },
+    { content: 'BBB' },
+    { content: '// inbetween', fileName: null },
+    { content: 'CC\nC' },
+    { content: '// Footer', fileName: null }
+  ],
+  output: {
+    content: '// Header\nAA\nA\nBBB\n// inbetween\nCC\nC\n// Footer',
+    sourceMap: '{"version":3,"file":"out.js","sources":["test2","test3","test5"],"names":[],"mappings":";AAAA;AACA;ACDA;;ACAA;AACA"}'
   }
 });

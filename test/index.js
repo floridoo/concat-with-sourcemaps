@@ -340,7 +340,7 @@ testCase('should allow content without filename and produce no mapping for it', 
     { content: '// Footer', fileName: null }
   ],
   output: {
-    content: '// Header\nAA\nA\nBBB\n// inbetween\nCC\nC\n// Footer',
+    content: '// Header\nAA\nA\nBBB\n// between\nCC\nC\n// Footer',
     sourceMap: '{"version":3,"file":"out.js","sources":["test2","test3","test5"],"names":[],"mappings":";AAAA;AACA;ACDA;;ACAA;AACA"}'
   }
 });

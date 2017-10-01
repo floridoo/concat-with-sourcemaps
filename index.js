@@ -1,9 +1,18 @@
 'use strict';
 var SourceMapGenerator = require('source-map').SourceMapGenerator;
 var SourceMapConsumer = require('source-map').SourceMapConsumer;
+var base64 = require('base-64');
 
 function unixStylePath(filePath) {
   return filePath.replace(/\\/g, '/');
+}
+
+function createCssInlineSourceMap(sourceMap) {
+  return "/*# sourceMappingURL=data:application/json;charset=utf-8;base64," + base64.encode(sourceMap) + " */";
+}
+
+function createJsInlineSourceMap(sourceMap) {
+  return "// sourceMappingURL=data:application/json;charset=utf-8;base64," + base64.encode(sourceMap);
 }
 
 function Concat(generateSourceMap, fileName, separator) {
@@ -11,6 +20,7 @@ function Concat(generateSourceMap, fileName, separator) {
   this.columnOffset = 0;
   this.sourceMapping = generateSourceMap;
   this.contentParts = [];
+  this.isCss = fileName.match(/\.css$/) !== null;
 
   if (separator === undefined) {
     this.separator = new Buffer(0);
@@ -118,4 +128,11 @@ Object.defineProperty(Concat.prototype, 'sourceMap', {
   }
 });
 
+Object.defineProperty(Concat.prototype, 'inlineSourceMap', {
+  get: function inlineSourceMap() {
+    if (this._sourceMap === undefined) return undefined;
+    var sourceMap = this._sourceMap.toString();
+    return (this.isCss === true) ? createCssInlineSourceMap(sourceMap) : createJsInlineSourceMap(sourceMap);
+  }
+});
 module.exports = Concat;

@@ -135,4 +135,12 @@ Object.defineProperty(Concat.prototype, 'inlineSourceMap', {
     return (this.isCss === true) ? createCssInlineSourceMap(sourceMap) : createJsInlineSourceMap(sourceMap);
   }
 });
+
+Object.defineProperty(Concat.prototype, 'contentWithInlineSourceMap', {
+  get: function contentWithInlineSourceMap() {
+    if (this.inlineSourceMap === undefined) return this.content;
+    return this.content + '\n' + this.inlineSourceMap;
+  }
+});
+
 module.exports = Concat;

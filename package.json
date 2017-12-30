@@ -18,7 +18,7 @@
   "author": "Florian Reiterer <me@florianreiterer.com>",
   "license": "ISC",
   "dependencies": {
-    "source-map": "^0.5.1"
+    "source-map": "^0.6.1"
   },
   "devDependencies": {
     "jshint": "^2.8.0",

@@ -262,7 +262,7 @@ testCase('should ignore invalid mappings', {
   ],
   output: {
     content: 'AAA\nBBB\nCCC\nEEE\nFFF',
-    sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":";AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
+    sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":"A;AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
   }
 });
 

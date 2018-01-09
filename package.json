@@ -1,6 +1,6 @@
 {
   "name": "concat-with-sourcemaps",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Concatenate file contents with a custom separator and generate a source map",
   "homepage": "http://github.com/floridoo/concat-with-sourcemaps",
   "repository": "git://github.com/floridoo/concat-with-sourcemaps.git",

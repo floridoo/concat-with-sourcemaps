@@ -129,5 +129,6 @@ function bufferFrom(content) {
   }
 }
 Concat.bufferFrom = bufferFrom;
+Concat.default = Concat;
 
 module.exports = Concat;

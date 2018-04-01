@@ -5,6 +5,7 @@
   "homepage": "http://github.com/floridoo/concat-with-sourcemaps",
   "repository": "git://github.com/floridoo/concat-with-sourcemaps.git",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jshint *.js test/*.js && faucet test/*.js",
     "tap": "tape test/*.js",

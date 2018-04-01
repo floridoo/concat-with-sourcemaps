@@ -118,4 +118,6 @@ Object.defineProperty(Concat.prototype, 'sourceMap', {
   }
 });
 
+Concat.default = Concat;
+
 module.exports = Concat;

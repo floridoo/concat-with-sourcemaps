@@ -21,11 +21,11 @@
     "source-map": "^0.6.1"
   },
   "devDependencies": {
-    "jshint": "^2.8.0",
-    "tape": "^4.2.0",
-    "istanbul": "^0.3.21",
+    "coveralls": "^3.0.0",
     "faucet": "0.0.1",
-    "coveralls": "^2.11.4"
+    "istanbul": "^0.4.5",
+    "jshint": "^2.9.5",
+    "tape": "^4.9.0"
   },
   "files": [
     "index.js",

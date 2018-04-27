@@ -13,9 +13,9 @@ function Concat(generateSourceMap, fileName, separator) {
   this.contentParts = [];
 
   if (separator === undefined) {
-    this.separator = new Buffer(0);
+    this.separator = Buffer.from('');
   } else {
-    this.separator = new Buffer(separator);
+    this.separator = Buffer.from(separator);
   }
 
   if (this.sourceMapping) {
@@ -37,7 +37,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
   filePath = filePath && unixStylePath(filePath);
 
   if (!Buffer.isBuffer(content)) {
-    content = new Buffer(content);
+    content = Buffer.from(content);
   }
 
   if (this.contentParts.length !== 0) {

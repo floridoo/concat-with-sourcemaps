@@ -8,7 +8,7 @@ function testCase(description, options) {
     // content as Buffer
     var concat = new Concat(options.sourceMapping, options.outFile, options.separator);
     options.input.forEach(function(input, i) {
-      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), new Buffer(input.content), input.sourceMap);
+      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), Buffer.from(input.content), input.sourceMap);
     });
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
@@ -343,4 +343,11 @@ testCase('should allow content without filename and produce no mapping for it', 
     content: '// Header\nAA\nA\nBBB\n// inbetween\nCC\nC\n// Footer',
     sourceMap: '{"version":3,"file":"out.js","sources":["test2","test3","test5"],"names":[],"mappings":";AAAA;AACA;ACDA;;ACAA;AACA"}'
   }
+});
+
+test('should not allocate an uninitialized buffer when passing a number', function(t) {
+  t.throws(function() {
+    new Concat(true, 'all.js', 234);
+  }, "passing a number as separator should throw");
+  t.end();
 });

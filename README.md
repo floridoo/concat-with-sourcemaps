@@ -4,13 +4,13 @@ NPM module for concatenating files and generating source maps.
 
 ### Usage example
 ```js
-var concat = new Concat(true, 'all.js', '\n');
-concat.add(null, "// (c) John Doe");
-concat.add('file1.js', file1Content);
-concat.add('file2.js', file2Content, file2SourceMap);
+const concat = new Concat(true, 'all.js', '\n');
+await concat.add(null, "// (c) John Doe");
+await concat.add('file1.js', file1Content);
+await concat.add('file2.js', file2Content, file2SourceMap);
 
-var concatenatedContent = concat.content;
-var sourceMapForContent = concat.sourceMap;
+const concatenatedContent = concat.content;
+const sourceMapForContent = concat.sourceMap;
 ```
 
 ### API
@@ -23,7 +23,7 @@ Parameters:
 - outFileName: the file name/path of the output file (for the source map)
 - separator: the string that should separate files (default: no separator)
 
-#### concat.add(fileName, content, sourceMap)
+#### concat.add(fileName, content, sourceMap) (async)
 Add a file to the output file.
 
 Parameters:

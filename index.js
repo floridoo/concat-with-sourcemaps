@@ -1,134 +1,114 @@
-'use strict';
-var SourceMapGenerator = require('source-map').SourceMapGenerator;
-var SourceMapConsumer = require('source-map').SourceMapConsumer;
+const SourceMapGenerator = require('source-map').SourceMapGenerator;
+const SourceMapConsumer = require('source-map').SourceMapConsumer;
 
 function unixStylePath(filePath) {
   return filePath.replace(/\\/g, '/');
 }
 
-function Concat(generateSourceMap, fileName, separator) {
-  this.lineOffset = 0;
-  this.columnOffset = 0;
-  this.sourceMapping = generateSourceMap;
-  this.contentParts = [];
-
-  if (separator === undefined) {
-    this.separator = bufferFrom('');
-  } else {
-    this.separator = bufferFrom(separator);
-  }
-
-  if (this.sourceMapping) {
-    this._sourceMap = new SourceMapGenerator({file: unixStylePath(fileName)});
-    this.separatorLineOffset = 0;
-    this.separatorColumnOffset = 0;
-    var separatorString = this.separator.toString();
-    for (var i = 0; i < separatorString.length; i++) {
-      this.separatorColumnOffset++;
-      if (separatorString[i] === '\n') {
-        this.separatorLineOffset++;
-        this.separatorColumnOffset = 0;
+class Concat {
+  constructor(generateSourceMap, fileName, separator) {
+    this.lineOffset = 0;
+    this.columnOffset = 0;
+    this.sourceMapping = generateSourceMap;
+    this.contentParts = [];
+    if (separator === undefined) {
+      this.separator = Buffer.from('');
+    }
+    else {
+      this.separator = Buffer.from(separator);
+    }
+    if (this.sourceMapping) {
+      this._sourceMap = new SourceMapGenerator({ file: unixStylePath(fileName) });
+      this.separatorLineOffset = 0;
+      this.separatorColumnOffset = 0;
+      const separatorString = this.separator.toString();
+      for (var i = 0; i < separatorString.length; i++) {
+        this.separatorColumnOffset++;
+        if (separatorString[i] === '\n') {
+          this.separatorLineOffset++;
+          this.separatorColumnOffset = 0;
+        }
       }
     }
   }
-}
 
-Concat.prototype.add = function(filePath, content, sourceMap) {
-  filePath = filePath && unixStylePath(filePath);
-
-  if (!Buffer.isBuffer(content)) {
-    content = bufferFrom(content);
-  }
-
-  if (this.contentParts.length !== 0) {
-    this.contentParts.push(this.separator);
-  }
-  this.contentParts.push(content);
-
-  if (this.sourceMapping) {
-    var contentString = content.toString();
-    var lines = contentString.split('\n').length;
-
-    if (Object.prototype.toString.call(sourceMap) === '[object String]')
-      sourceMap = JSON.parse(sourceMap);
-
-    if (sourceMap && sourceMap.mappings && sourceMap.mappings.length > 0) {
-      var upstreamSM = new SourceMapConsumer(sourceMap);
-      var _this = this;
-      upstreamSM.eachMapping(function(mapping) {
-        if (mapping.source) {
-          _this._sourceMap.addMapping({
-            generated: {
-              line: _this.lineOffset + mapping.generatedLine,
-              column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
-            },
-            original: mapping.originalLine == null ? null : {
-              line: mapping.originalLine,
-              column: mapping.originalColumn
-            },
-            source: mapping.originalLine != null ? mapping.source : null,
-            name: mapping.name
-          });
-        }
-      });
-      if (upstreamSM.sourcesContent) {
-        upstreamSM.sourcesContent.forEach(function(sourceContent, i) {
-          _this._sourceMap.setSourceContent(upstreamSM.sources[i], sourceContent);
+  async add(filePath, content, sourceMap) {
+    filePath = filePath && unixStylePath(filePath);
+    if (!Buffer.isBuffer(content)) {
+      content = Buffer.from(content);
+    }
+    if (this.contentParts.length !== 0) {
+      this.contentParts.push(this.separator);
+    }
+    this.contentParts.push(content);
+    if (this.sourceMapping) {
+      const contentString = content.toString();
+      const lines = contentString.split('\n').length;
+      if (Object.prototype.toString.call(sourceMap) === '[object String]')
+        sourceMap = JSON.parse(sourceMap);
+      if (sourceMap && sourceMap.mappings && sourceMap.mappings.length > 0) {
+        const upstreamSM = await (new SourceMapConsumer(sourceMap));
+        const _this = this;
+        upstreamSM.eachMapping(function (mapping) {
+          if (mapping.source) {
+            _this._sourceMap.addMapping({
+              generated: {
+                line: _this.lineOffset + mapping.generatedLine,
+                column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
+              },
+              original: mapping.originalLine == null ? null : {
+                line: mapping.originalLine,
+                column: mapping.originalColumn
+              },
+              source: mapping.originalLine != null ? mapping.source : null,
+              name: mapping.name
+            });
+          }
         });
-      }
-    } else {
-      if (sourceMap && sourceMap.sources && sourceMap.sources.length > 0)
-        filePath = sourceMap.sources[0];
-      if (filePath) {
-        for (var i = 1; i <= lines; i++) {
-          this._sourceMap.addMapping({
-            generated: {
-              line: this.lineOffset + i,
-              column: (i === 1 ? this.columnOffset : 0)
-            },
-            original: {
-              line: i,
-              column: 0
-            },
-            source: filePath
+        if (upstreamSM.sourcesContent) {
+          upstreamSM.sourcesContent.forEach(function (sourceContent, i) {
+            _this._sourceMap.setSourceContent(upstreamSM.sources[i], sourceContent);
           });
         }
-        if (sourceMap && sourceMap.sourcesContent)
-          this._sourceMap.setSourceContent(filePath, sourceMap.sourcesContent[0]);
+        upstreamSM.destroy();
+      } else {
+        if (sourceMap && sourceMap.sources && sourceMap.sources.length > 0)
+          filePath = sourceMap.sources[0];
+        if (filePath) {
+          for (var i = 1; i <= lines; i++) {
+            this._sourceMap.addMapping({
+              generated: {
+                line: this.lineOffset + i,
+                column: (i === 1 ? this.columnOffset : 0)
+              },
+              original: {
+                line: i,
+                column: 0
+              },
+              source: filePath
+            });
+          }
+          if (sourceMap && sourceMap.sourcesContent)
+            this._sourceMap.setSourceContent(filePath, sourceMap.sourcesContent[0]);
+        }
       }
+      if (lines > 1)
+        this.columnOffset = 0;
+      if (this.separatorLineOffset === 0)
+        this.columnOffset += contentString.length - Math.max(0, contentString.lastIndexOf('\n') + 1);
+      this.columnOffset += this.separatorColumnOffset;
+      this.lineOffset += lines - 1 + this.separatorLineOffset;
     }
-    if (lines > 1)
-      this.columnOffset = 0;
-    if (this.separatorLineOffset === 0)
-      this.columnOffset += contentString.length - Math.max(0, contentString.lastIndexOf('\n')+1);
-    this.columnOffset += this.separatorColumnOffset;
-    this.lineOffset += lines - 1 + this.separatorLineOffset;
   }
-};
 
-Object.defineProperty(Concat.prototype, 'content', {
-  get: function content() {
+  get content() {
     return Buffer.concat(this.contentParts);
   }
-});
 
-Object.defineProperty(Concat.prototype, 'sourceMap', {
-  get: function sourceMap() {
+  get sourceMap() {
     return this._sourceMap ? this._sourceMap.toString() : undefined;
   }
-});
-
-function bufferFrom(content) {
-  try {
-    return Buffer.from(content);
-  } catch(e) {
-    if (Object.prototype.toString.call(content) !== '[object String]') {
-      throw new TypeError("separator must be a string");
-    }
-    return new Buffer(content);
-  }
 }
-Concat.bufferFrom = bufferFrom;
 Concat.default = Concat;
 
 module.exports = Concat;

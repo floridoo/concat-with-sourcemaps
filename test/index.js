@@ -1,32 +1,48 @@
 'use strict';
 
-var test = require('tape');
-var Concat = require('..');
+const tapeTest = require('tape');
+const Concat = require('..');
+
+// Wrapper to allow use of Promises / async & await
+function test(name, cb) {
+  tapeTest(name, async (t) => {
+    try {
+      await cb(t);
+    } catch (e) {
+      t.fail(e);
+    } finally {
+      t.end();
+    }
+  });
+}
 
 function testCase(description, options) {
-  test(description, function(t) {
+  test(description + ' (Buffer)', async function(t) {
     // content as Buffer
-    var concat = new Concat(options.sourceMapping, options.outFile, options.separator);
-    options.input.forEach(function(input, i) {
-      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), Concat.bufferFrom(input.content), input.sourceMap);
-    });
+    const concat = new Concat(options.sourceMapping, options.outFile, options.separator);
+    for (let i = 0; i < options.input.length; i++) {
+      let input = options.input[i];
+      await concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), Buffer.from(input.content), input.sourceMap);
+    }
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
       t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
     else
       t.equal(concat.sourceMap, undefined, 'should not produce a source map');
+  });
 
+  test(description + ' (String)', async function(t) {
     // content as string
-    concat = new Concat(options.sourceMapping, options.outFile, options.separator);
-    options.input.forEach(function(input, i) {
-      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), input.content, input.sourceMap);
-    });
+    const concat = new Concat(options.sourceMapping, options.outFile, options.separator);
+    for (let i = 0; i < options.input.length; i++) {
+      let input = options.input[i];
+      await concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), input.content, input.sourceMap);
+    }
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)
       t.deepEqual(JSON.parse(concat.sourceMap), JSON.parse(options.output.sourceMap), 'should produce the right source map');
     else
       t.equal(concat.sourceMap, undefined, 'should not produce a source map');
-    t.end();
   });
 }
 
@@ -262,7 +278,7 @@ testCase('should ignore invalid mappings', {
   ],
   output: {
     content: 'AAA\nBBB\nCCC\nEEE\nFFF',
-    sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":"A;AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
+    sourceMap: '{"version":3,"file":"out.js","sources":["test12","test13","test2","test3"],"names":[],"mappings":";AAAA;ACAA;ACAA;ACAA","sourcesContent":["BBB","CCC",null,null]}'
   }
 });
 
@@ -348,6 +364,5 @@ testCase('should allow content without filename and produce no mapping for it', 
 test('should not allocate an uninitialized buffer when passing a number', function(t) {
   t.throws(function() {
     new Concat(true, 'all.js', 234);
-  }, "passing a number as separator should throw");
-  t.end();
+  }, 'passing a number as separator should throw');
 });

@@ -8,7 +8,7 @@ function testCase(description, options) {
     // content as Buffer
     var concat = new Concat(options.sourceMapping, options.outFile, options.separator);
     options.input.forEach(function(input, i) {
-      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), Buffer.from(input.content), input.sourceMap);
+      concat.add((input.fileName !== undefined ? input.fileName : 'test'+(i+1)), Concat.bufferFrom(input.content), input.sourceMap);
     });
     t.equal(concat.content.toString(), options.output.content, 'should produce the right output');
     if (options.output.sourceMap)

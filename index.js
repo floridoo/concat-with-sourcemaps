@@ -13,9 +13,9 @@ function Concat(generateSourceMap, fileName, separator) {
   this.contentParts = [];
 
   if (separator === undefined) {
-    this.separator = Buffer.from('');
+    this.separator = bufferFrom('');
   } else {
-    this.separator = Buffer.from(separator);
+    this.separator = bufferFrom(separator);
   }
 
   if (this.sourceMapping) {
@@ -37,7 +37,7 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
   filePath = filePath && unixStylePath(filePath);
 
   if (!Buffer.isBuffer(content)) {
-    content = Buffer.from(content);
+    content = bufferFrom(content);
   }
 
   if (this.contentParts.length !== 0) {
@@ -117,5 +117,17 @@ Object.defineProperty(Concat.prototype, 'sourceMap', {
     return this._sourceMap ? this._sourceMap.toString() : undefined;
   }
 });
+
+function bufferFrom(content) {
+  try {
+    return Buffer.from(content);
+  } catch(e) {
+    if (Object.prototype.toString.call(content) !== '[object String]') {
+      throw new TypeError("separator must be a string");
+    }
+    return new Buffer(content);
+  }
+}
+Concat.bufferFrom = bufferFrom;
 
 module.exports = Concat;

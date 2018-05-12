@@ -57,18 +57,22 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
       var _this = this;
       upstreamSM.eachMapping(function(mapping) {
         if (mapping.source) {
-          _this._sourceMap.addMapping({
-            generated: {
-              line: _this.lineOffset + mapping.generatedLine,
-              column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
-            },
-            original: mapping.originalLine == null ? null : {
-              line: mapping.originalLine,
-              column: mapping.originalColumn
-            },
-            source: mapping.originalLine != null ? mapping.source : null,
-            name: mapping.name
-          });
+          // prevents sourcemaps from breaking on files
+          // that don't contain any CSS with nagative lines
+          try {
+            _this._sourceMap.addMapping({
+              generated: {
+                line: _this.lineOffset + mapping.generatedLine,
+                column: (mapping.generatedLine === 1 ? _this.columnOffset : 0) + mapping.generatedColumn
+              },
+              original: mapping.originalLine == null ? null : {
+                line: mapping.originalLine,
+                column: mapping.originalColumn
+              },
+              source: mapping.originalLine != null ? mapping.source : null,
+              name: mapping.name
+            });
+          } catch(e){}
         }
       });
       if (upstreamSM.sourcesContent) {

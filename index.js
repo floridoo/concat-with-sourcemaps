@@ -95,6 +95,8 @@ Concat.prototype.add = function(filePath, content, sourceMap) {
         }
         if (sourceMap && sourceMap.sourcesContent)
           this._sourceMap.setSourceContent(filePath, sourceMap.sourcesContent[0]);
+        if (!sourceMap || !sourceMap.sourcesContent)
+          this._sourceMap.setSourceContent(filePath, contentString);
       }
     }
     if (lines > 1)

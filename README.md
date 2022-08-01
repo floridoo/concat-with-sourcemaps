@@ -4,14 +4,30 @@ NPM module for concatenating files and generating source maps.
 
 ### Usage example
 ```js
-var concat = new Concat(true, 'all.js', '\n');
+const concat = new Concat(true, 'all.js', '\n');
 concat.add(null, "// (c) John Doe");
 concat.add('file1.js', file1Content);
 concat.add('file2.js', file2Content, file2SourceMap);
 
-var concatenatedContent = concat.content;
-var sourceMapForContent = concat.sourceMap;
+const concatenatedContent = concat.content;
+const sourceMapForContent = concat.sourceMap;
 ```
+
+## CLI example
+```sh
+# Outputs to STDOUT with embeded sourcemaps:
+concat-with-sourcemaps file1.js file2.js
+
+# Outputs to dist/out.js and dist/out.js.map:
+concat-with-sourcemaps file1.js file2.js -o dist/out.js
+
+# Outputs to public/out.css with embeded sourcemaps:
+concat-with-sourcemaps file1.css file2.css -o public/out.css -e
+```
+
+The CLI tool loads the input's sourcemap, by related name (try to read `./file1.js.map` to `./file1.js`), `sourceMappingURL` reference, or embeded as data url.
+
+Run `concat-with-sourcemaps --help` for more information.
 
 ### API
 

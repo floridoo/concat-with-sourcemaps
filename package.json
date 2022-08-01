@@ -1,11 +1,14 @@
 {
   "name": "concat-with-sourcemaps",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Concatenate file contents with a custom separator and generate a source map",
   "homepage": "http://github.com/floridoo/concat-with-sourcemaps",
   "repository": "git://github.com/floridoo/concat-with-sourcemaps.git",
   "main": "index.js",
   "types": "index.d.ts",
+  "bin": {
+    "concat-with-sourcemaps": "bin/concat-with-sourcemaps"
+  },
   "scripts": {
     "test": "jshint *.js test/*.js && faucet test/*.js",
     "tap": "tape test/*.js",

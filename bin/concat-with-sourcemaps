@@ -1,0 +1,127 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const Concat = require('..')
+const fs = require('fs')
+
+const ARGS = process.argv.slice(2)
+
+function showVersionAndExit() {
+  console.log(require('../package.json').version)
+  process.exit(0)
+}
+
+function showHelpAndExit(exitStaus=0, errorMessage='') {
+  if (errorMessage) console.error('Error: ' + errorMessage)
+  console.error(`
+  concat-with-sourcemaps - Concatenate files and generating source maps.
+
+  The current input's sourcemaps will be used to build the new one. It
+  tries the related name (try to read "./file1.js.map" to "./file1.js"),
+  sourceMappingURL reference, or embeded as data url.
+
+  Usage:
+  $ concat-with-sourcemaps [options] <file1> <file2> [<file3> [... <fileN>]]
+
+  Options
+
+  -o <output-filename>   The name of the concatenated result. The map file will
+                         be generated with the same name, with a ".map" sufix.
+                         If the output is not set, it will be written to STOUT
+                         and the -e option will be implied.
+
+  -e                     Embed the source map to the concatenated code.
+
+  -v                     Vebose
+
+  -V                     Version
+  `)
+  process.exit(exitStaus)
+}
+
+const inputFiles = []
+let output = ''
+let embed = false
+let verbose = false
+
+if (!ARGS.length) showHelpAndExit(1, 'No args!?')
+
+for (let i=0; i<ARGS.length; i++) {
+  let arg = ARGS[i]
+  if (arg === '-o') output = ARGS[++i]
+  else if (arg === '-e') embed = true
+  else if (arg === '-v') verbose = true
+  else if (arg === '-V') showVersionAndExit()
+  else if (arg === '-h') showHelpAndExit()
+  else if (arg === '--help') showHelpAndExit()
+  else inputFiles.push(arg)
+}
+
+if (!inputFiles.length) showHelpAndExit(1, 'No imput files.')
+if (!output) embed = true
+
+if (verbose) console.error(`  • Output: ${ output ? output : 'STDOUT' }
+  • Embed: ${ embed }
+  • Input files:`)
+
+const concat = new Concat(true, output, '\n')
+
+const embededRE = /[#@]\s*sourceMappingURL=([^\r\n]+).*/sm
+
+inputFiles.forEach(fileName => {
+  let srcMap, source
+  try {
+    source = fs.readFileSync(fileName, 'utf8')
+    srcMap = fs.readFileSync(fileName+'.map', 'utf8')
+  } catch(err) {
+    if (!source) {
+      console.error(`Fail to read "${fileName}".`)
+      throw(err)
+    }
+  }
+  if (!srcMap) { // There is no external sourcemap, lets try to find it embeded
+    const srcMapUrl = ( source.match(embededRE) || [] )[1] || ''
+    if (srcMapUrl.match(/^data:/)) {
+      const base64Data = srcMapUrl.match(/^data:application\/json;base64,(.*)/)
+      if (base64Data) {
+        srcMap = atob(base64Data[1])
+      } else {
+        console.error('It only knows sourcemaps embeded as "data:application/json;base64".')
+      }
+    }
+    else if (srcMapUrl.match(/^https?:/)) {
+      console.error('External source map loading is not implemented yet.')
+    }
+    else if (srcMapUrl) {
+      let path = './'
+      if (fileName.indexOf('/')>-1) path = fileName.replace(/\/[^\/]+$/, '/')
+      srcMap = fs.readFileSync(path+srcMapUrl, 'utf8')
+    }
+  }
+  source = source.split('\n').filter(line => !line.match(embededRE)).join('\n')
+  if (verbose) console.error(`    • ${fileName} ${srcMap ? 'With' : 'Without'} sourcemap.`)
+  srcMap = srcMap ? JSON.parse(srcMap) : null
+  concat.add(fileName, source, srcMap)
+})
+
+function embededSrcMap() {
+  return '/*\n' +
+  '//# sourceMappingURL=data:application/json;base64,' +
+  btoa(concat.sourceMap) +
+  '\n*/'
+}
+
+if (output) {
+  fs.writeFileSync(output, concat.content)
+  if (embed) {
+    fs.appendFileSync(output, embededSrcMap())
+  }
+  else {
+    fs.appendFileSync(output, `/*\n//# sourceMappingURL=${output}.map\n*/`)
+    fs.writeFileSync(output+'.map', concat.sourceMap)
+  }
+}
+else {
+  console.log(concat.content + embededSrcMap())
+}
